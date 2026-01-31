@@ -2,6 +2,9 @@ FROM ubuntu:noble
 
 USER root
 ENV DEBIAN_FRONTEND=noninteractive
+
+RUN  curl -sL https://deb.nodesource.com/setup_lts.x | bash -
+
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     bash \
@@ -12,6 +15,7 @@ RUN apt-get update && \
     locales \
     sudo \
     iproute2 \
+    nodejs \
     && rm -rf /var/lib/apt/lists/*
 
 # Generate the desired locale (en_US.UTF-8)
