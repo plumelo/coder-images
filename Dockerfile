@@ -3,7 +3,6 @@ FROM ubuntu:noble
 USER root
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN  curl -sL https://deb.nodesource.com/setup_24.x | bash -
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -14,7 +13,12 @@ RUN apt-get update && \
     jq \
     locales \
     sudo \
-    iproute2 \
+    iproute2
+
+RUN curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
     nodejs \
     tmux ripgrep fd-find \
     && rm -rf /var/lib/apt/lists/*
