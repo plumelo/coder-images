@@ -16,6 +16,7 @@ RUN apt-get update && \
     sudo \
     iproute2 \
     nodejs \
+    tmux ripgrep fd-find \
     && rm -rf /var/lib/apt/lists/*
 
 # Generate the desired locale (en_US.UTF-8)
