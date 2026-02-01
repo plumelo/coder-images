@@ -17,6 +17,7 @@ apt-get install -y --no-install-recommends \
     iproute2 \
     jq \
     locales \
+    openssh-client \
     sudo
 
 # Add NodeJS repository
