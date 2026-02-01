@@ -4,20 +4,43 @@ USER root
 ENV DEBIAN_FRONTEND=noninteractive
 
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN <<EOF
+set -e
+
+# Install base packages
+apt-get update
+apt-get install -y --no-install-recommends \
     bash \
     ca-certificates \
     curl \
     git \
+    iproute2 \
     jq \
     locales \
-    sudo \
-    iproute2 \
-    && curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash - && apt-get update \
-    && apt-get install -y --no-install-recommends \
+    sudo
+
+# Add NodeJS repository
+curl -fsSL https://deb.nodesource.com/setup_24.x | bash -
+
+# Add GitHub CLI repository
+curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+    | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+    > /etc/apt/sources.list.d/github-cli.list
+
+# Install additional packages from external repos
+apt-get update
+apt-get install -y --no-install-recommends \
+    fd-find \
+    gh \
+    neovim \
     nodejs \
-    tmux ripgrep fd-find \
-    && rm -rf /var/lib/apt/lists/*
+    ripgrep \
+    tmux
+
+# Cleanup
+rm -rf /var/lib/apt/lists/*
+EOF
 
 # Generate the desired locale (en_US.UTF-8)
 RUN locale-gen en_US.UTF-8
