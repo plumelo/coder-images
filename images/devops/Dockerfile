@@ -6,22 +6,28 @@ USER root
 RUN <<EOF
 set -e
 
-# Install HashiCorp repository
 apt-get update
 apt-get install -y --no-install-recommends gnupg software-properties-common unzip
 
+# Add HashiCorp repository
 curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" \
     > /etc/apt/sources.list.d/hashicorp.list
 
+# Add Azure CLI repository
+curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/microsoft-archive-keyring.gpg] https://packages.microsoft.com/repos/azure-cli/ $(lsb_release -cs) main" \
+    > /etc/apt/sources.list.d/azure-cli.list
+
 # Install tflint
 curl -fsSL https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
 
-# Install Terraform and Packer from HashiCorp repo
+# Install Terraform, Packer, and Azure CLI from external repos
 apt-get update
 apt-get install -y --no-install-recommends \
     terraform \
-    packer
+    packer \
+    azure-cli
 
 # Cleanup
 rm -rf /var/lib/apt/lists/*
