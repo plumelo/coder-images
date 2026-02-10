@@ -10,7 +10,9 @@ set -e
 # Install base packages
 apt-get update
 apt-get install -y --no-install-recommends \
+    age \
     bash \
+    bash-completion \
     ca-certificates \
     curl \
     git \
@@ -40,6 +42,11 @@ apt-get install -y --no-install-recommends \
     nodejs \
     ripgrep \
     tmux
+
+# Install sops
+curl -fsSLo /usr/local/bin/sops \
+    https://github.com/getsops/sops/releases/download/v3.11.0/sops-v3.11.0.linux.amd64
+chmod +x /usr/local/bin/sops
 
 # Cleanup
 rm -rf /var/lib/apt/lists/*
