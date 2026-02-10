@@ -10,16 +10,13 @@
       system = "x86_64-linux";
       pkgs = import nixpkgs { inherit system; };
 
-      # Custom user/group setup for the coder user (uid/gid 1000)
+      # User/group setup for the coder user (uid/gid 1000)
+      # fakeNss provides /etc/passwd, /etc/group, /etc/nsswitch.conf, /var/empty
       userSetup = with pkgs; [
-        (writeTextDir "etc/passwd" ''
-root:x:0:0:root:/root:/bin/bash
-coder:x:1000:1000:coder:/home/coder:/bin/bash
-        '')
-        (writeTextDir "etc/group" ''
-root:x:0:
-coder:x:1000:
-        '')
+        (fakeNss.override {
+          extraPasswdLines = [ "coder:x:1000:1000:coder:/home/coder:/bin/bash" ];
+          extraGroupLines = [ "coder:x:1000:" ];
+        })
         (writeTextDir "etc/shadow" ''
 root:!x:::::::
 coder:!:::::::
@@ -28,17 +25,24 @@ coder:!:::::::
 root:x::
 coder:x::
         '')
-        (writeTextDir "etc/nsswitch.conf" ''
-passwd: files
-group:  files
-shadow: files
-hosts:  files dns
-        '')
+        # Coder agent requires a distro-release file for its resource monitor
         (writeTextDir "etc/os-release" ''
 NAME="Nix"
 ID=nix
 PRETTY_NAME="Nix (Coder Workspace)"
 HOME_URL="https://nixos.org"
+        '')
+        # PAM fallback config (sudo is compiled with PAM support)
+        (writeTextDir "etc/pam.d/other" ''
+account sufficient pam_unix.so
+auth sufficient pam_rootok.so
+password requisite pam_unix.so nullok yescrypt
+session required pam_unix.so
+        '')
+        # Base sudoers file — required for sudo to run and load drop-ins
+        (writeTextDir "etc/sudoers" ''
+root ALL=(ALL:ALL) ALL
+@includedir /etc/sudoers.d
         '')
       ];
 
@@ -203,11 +207,18 @@ eval "$(direnv hook bash)"
             mkdir -p ./tmp
             chmod 1777 ./tmp
 
-            # Create /var/empty (needed by openssh)
-            mkdir -p ./var/empty
+            # sudo: set the setuid bit on the sudo binary.
+            # nixpkgs deliberately strips it from the Nix store; fakeroot
+            # records the permission and tar --hard-dereference preserves
+            # it in the Docker layer.
+            chmod 4755 ./nix/store/*-sudo-*/bin/sudo
 
-            # Ensure sudoers file has correct permissions
+            # Ensure sudoers files have correct ownership and permissions
+            # (sudo refuses to run if these are group/world writable)
+            chmod 0440 ./etc/sudoers
+            chown 0:0 ./etc/sudoers
             chmod 0440 ./etc/sudoers.d/nopasswd
+            chown 0:0 ./etc/sudoers.d/nopasswd
 
             # nix-ld: create the dynamic linker shim at the standard FHS path
             # so unpatched binaries can find the interpreter
