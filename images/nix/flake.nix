@@ -88,11 +88,16 @@
         '';
       };
 
-      # Bashrc with direnv hook
+      # Bashrc with direnv hook and bash completion
       bashrc = pkgs.writeTextDir "home/coder/.bashrc" ''
         # Source global profile if it exists
         if [ -f /etc/profile ]; then
           . /etc/profile
+        fi
+
+        # Bash completion
+        if [ -f ${pkgs.bash-completion}/etc/profile.d/bash_completion.sh ]; then
+          . ${pkgs.bash-completion}/etc/profile.d/bash_completion.sh
         fi
 
         # Direnv hook
@@ -116,6 +121,7 @@
 
             # Core utilities
             bash
+            bash-completion
             coreutils
             findutils
             gnugrep
@@ -146,6 +152,10 @@
             ripgrep
             fd
             tmux
+
+            # Secrets management
+            sops
+            age
 
             # Nix ecosystem
             nix
