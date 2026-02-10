@@ -202,10 +202,13 @@ eval "$(direnv hook bash)"
             mkdir -p ./tmp
             chmod 1777 ./tmp
 
-            # sudo: set the setuid bit on the sudo binary.
-            # nixpkgs deliberately strips it from the Nix store; fakeroot
-            # records the permission and tar --hard-dereference preserves
-            # it in the Docker layer.
+            # sudo: replace the symlink with a real copy, then set the
+            # setuid bit.  symlinkJoin creates ./bin/sudo as a symlink into
+            # the Nix store.  tar (without --dereference) archives symlinks
+            # as-is, so fakeroot-tracked permissions on the target are lost.
+            # Copying the binary makes it a regular file whose mode fakeroot
+            # can record and tar will faithfully preserve in the layer.
+            cp --remove-destination "$(readlink -f ./bin/sudo)" ./bin/sudo
             chmod 4755 ./bin/sudo
 
             # Replace the sudo package's default /etc/sudoers with our own.
