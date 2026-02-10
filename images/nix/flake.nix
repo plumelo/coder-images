@@ -39,11 +39,6 @@ auth sufficient pam_rootok.so
 password requisite pam_unix.so nullok yescrypt
 session required pam_unix.so
         '')
-        # Base sudoers file — required for sudo to run and load drop-ins
-        (writeTextDir "etc/sudoers" ''
-root ALL=(ALL:ALL) ALL
-@includedir /etc/sudoers.d
-        '')
       ];
 
       # Nix configuration with flakes enabled
@@ -211,10 +206,13 @@ eval "$(direnv hook bash)"
             # nixpkgs deliberately strips it from the Nix store; fakeroot
             # records the permission and tar --hard-dereference preserves
             # it in the Docker layer.
-            chmod 4755 ./nix/store/*-sudo-*/bin/sudo
+            chmod 4755 ./bin/sudo
 
-            # Ensure sudoers files have correct ownership and permissions
-            # (sudo refuses to run if these are group/world writable)
+            # Replace the sudo package's default /etc/sudoers with our own.
+            # symlinkJoin keeps the sudo package's version (which may not
+            # include @includedir), so we overwrite it here.
+            rm -f ./etc/sudoers
+            printf '%s\n' 'root ALL=(ALL:ALL) ALL' '@includedir /etc/sudoers.d' > ./etc/sudoers
             chmod 0440 ./etc/sudoers
             chown 0:0 ./etc/sudoers
             chmod 0440 ./etc/sudoers.d/nopasswd
