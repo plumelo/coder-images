@@ -230,6 +230,11 @@ eval "$(direnv hook bash)"
             chmod 0440 ./etc/sudoers.d/nopasswd
             chown 0:0 ./etc/sudoers.d/nopasswd
 
+            # Nix store: grant the coder user ownership of the entire /nix tree
+            # so that single-user Nix commands (nix develop, nix build, etc.)
+            # can acquire locks and write to the store/db without the daemon.
+            chown -R 1000:1000 ./nix
+
             # nix-ld: create the dynamic linker shim at the standard FHS path
             # so unpatched binaries can find the interpreter
             mkdir -p ./lib64
