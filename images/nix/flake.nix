@@ -13,37 +13,49 @@
       # Custom user/group setup for the coder user (uid/gid 1000)
       userSetup = with pkgs; [
         (writeTextDir "etc/passwd" ''
-          root:x:0:0:root:/root:/bin/bash
-          coder:x:1000:1000:coder:/home/coder:/bin/bash
+root:x:0:0:root:/root:/bin/bash
+coder:x:1000:1000:coder:/home/coder:/bin/bash
         '')
         (writeTextDir "etc/group" ''
-          root:x:0:
-          coder:x:1000:
+root:x:0:
+coder:x:1000:
         '')
         (writeTextDir "etc/shadow" ''
-          root:!x:::::::
-          coder:!:::::::
+root:!x:::::::
+coder:!:::::::
         '')
         (writeTextDir "etc/gshadow" ''
-          root:x::
-          coder:x::
+root:x::
+coder:x::
+        '')
+        (writeTextDir "etc/nsswitch.conf" ''
+passwd: files
+group:  files
+shadow: files
+hosts:  files dns
+        '')
+        (writeTextDir "etc/os-release" ''
+NAME="Nix"
+ID=nix
+PRETTY_NAME="Nix (Coder Workspace)"
+HOME_URL="https://nixos.org"
         '')
       ];
 
       # Nix configuration with flakes enabled
       nixConf = pkgs.writeTextDir "etc/nix/nix.conf" ''
-        experimental-features = nix-command flakes
-        trusted-users = root coder
+experimental-features = nix-command flakes
+trusted-users = root coder
       '';
 
       # Sudoers configuration for passwordless sudo
       sudoersConf = pkgs.writeTextDir "etc/sudoers.d/nopasswd" ''
-        coder ALL=(ALL) NOPASSWD:ALL
+coder ALL=(ALL) NOPASSWD:ALL
       '';
 
       # Direnv configuration to source nix-direnv
       direnvrc = pkgs.writeTextDir "home/coder/.config/direnv/direnvrc" ''
-        source ${pkgs.nix-direnv}/share/nix-direnv/direnvrc
+source ${pkgs.nix-direnv}/share/nix-direnv/direnvrc
       '';
 
       # nix-ld: library environment for running unpatched dynamic binaries.
@@ -90,18 +102,18 @@
 
       # Bashrc with direnv hook and bash completion
       bashrc = pkgs.writeTextDir "home/coder/.bashrc" ''
-        # Source global profile if it exists
-        if [ -f /etc/profile ]; then
-          . /etc/profile
-        fi
+# Source global profile if it exists
+if [ -f /etc/profile ]; then
+  . /etc/profile
+fi
 
-        # Bash completion
-        if [ -f ${pkgs.bash-completion}/etc/profile.d/bash_completion.sh ]; then
-          . ${pkgs.bash-completion}/etc/profile.d/bash_completion.sh
-        fi
+# Bash completion
+if [ -f ${pkgs.bash-completion}/etc/profile.d/bash_completion.sh ]; then
+  . ${pkgs.bash-completion}/etc/profile.d/bash_completion.sh
+fi
 
-        # Direnv hook
-        eval "$(direnv hook bash)"
+# Direnv hook
+eval "$(direnv hook bash)"
       '';
 
     in
