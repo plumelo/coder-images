@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  check-base:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Build base image
+        run: docker build ./images/base
+
+  check-nix:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - name: Cache Nix store
+        uses: actions/cache@v4
+        with:
+          path: |
+            /nix/store
+            ~/.cache/nix
+          key: nix-${{ runner.os }}-${{ hashFiles('images/nix/flake.lock') }}
+          restore-keys: |
+            nix-${{ runner.os }}-
+
+      - name: Generate flake.lock if missing
+        run: |
+          if [ ! -f images/nix/flake.lock ]; then
+            nix flake lock ./images/nix
+          fi
+
+      - name: Build nix image
+        run: nix build ./images/nix#dockerImage
+
+  check-devops:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Build devops image
+        run: docker build ./images/devops --build-arg BASE_IMAGE=ubuntu:noble
