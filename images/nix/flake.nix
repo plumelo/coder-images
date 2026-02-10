@@ -18,8 +18,8 @@
           extraGroupLines = [ "coder:x:1000:" ];
         })
         (writeTextDir "etc/shadow" ''
-root:!x:::::::
-coder:!:::::::
+root:*:::::::
+coder:*:::::::
         '')
         (writeTextDir "etc/gshadow" ''
 root:x::
@@ -38,6 +38,15 @@ account sufficient pam_unix.so
 auth sufficient pam_rootok.so
 password requisite pam_unix.so nullok yescrypt
 session required pam_unix.so
+        '')
+        # Dedicated PAM config for sudo – auth and account use pam_permit
+        # because actual authorisation is handled by sudoers, while session
+        # uses pam_unix for proper session setup.
+        (writeTextDir "etc/pam.d/sudo" ''
+auth       sufficient pam_rootok.so
+auth       required   pam_permit.so
+account    required   pam_permit.so
+session    required   pam_unix.so
         '')
       ];
 
