@@ -111,6 +111,7 @@
           name = "ghcr.io/plumelo/coder-images";
           tag = "nix";
           maxLayers = 125;
+          created = "now";
 
           contents = with pkgs; [
             # Docker environment helpers
