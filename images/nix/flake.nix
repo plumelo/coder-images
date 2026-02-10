@@ -46,6 +46,48 @@
         source ${pkgs.nix-direnv}/share/nix-direnv/direnvrc
       '';
 
+      # nix-ld: library environment for running unpatched dynamic binaries.
+      # This bundles common shared libraries so that pre-compiled binaries
+      # (e.g. from npm, pip wheels, GitHub releases, VS Code Remote, rustup)
+      # can find the libraries they need without patchelf or FHS wrappers.
+      nix-ld-libraries = pkgs.buildEnv {
+        name = "nix-ld-lib";
+        pathsToLink = [ "/lib" ];
+        paths = map pkgs.lib.getLib (with pkgs; [
+          acl
+          attr
+          bzip2
+          curl
+          expat
+          fontconfig
+          freetype
+          fuse3
+          glib
+          icu
+          libGL
+          libnotify
+          libsodium
+          libssh
+          libunwind
+          libusb1
+          libuuid
+          libxml2
+          nss
+          openssl
+          stdenv.cc.cc
+          systemd
+          util-linux
+          xz
+          zlib
+          zstd
+        ]);
+        extraPrefix = "/share/nix-ld";
+        ignoreCollisions = true;
+        postBuild = ''
+          ln -s ${pkgs.stdenv.cc.bintools.dynamicLinker} $out/share/nix-ld/lib/ld.so
+        '';
+      };
+
       # Bashrc with direnv hook
       bashrc = pkgs.writeTextDir "home/coder/.bashrc" ''
         # Source global profile if it exists
@@ -109,6 +151,7 @@
             nix
             direnv
             nix-direnv
+            nix-ld
 
             # Locale support
             glibcLocales
@@ -122,6 +165,7 @@
             sudoersConf
             direnvrc
             bashrc
+            nix-ld-libraries
           ];
 
           fakeRootCommands = ''
@@ -141,6 +185,11 @@
 
             # Ensure sudoers file has correct permissions
             chmod 0440 ./etc/sudoers.d/nopasswd
+
+            # nix-ld: create the dynamic linker shim at the standard FHS path
+            # so unpatched binaries can find the interpreter
+            mkdir -p ./lib64
+            ln -sf ${pkgs.nix-ld}/libexec/nix-ld ./lib64/ld-linux-x86-64.so.2
           '';
 
           config = {
@@ -155,6 +204,8 @@
               "LOCALE_ARCHIVE=${pkgs.glibcLocales}/lib/locale/locale-archive"
               "SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt"
               "NIX_PAGER=cat"
+              "NIX_LD=${nix-ld-libraries}/share/nix-ld/lib/ld.so"
+              "NIX_LD_LIBRARY_PATH=${nix-ld-libraries}/share/nix-ld/lib"
               "USER=coder"
               "HOME=/home/coder"
             ];
