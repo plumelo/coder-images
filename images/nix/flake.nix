@@ -66,6 +66,43 @@ coder ALL=(ALL) NOPASSWD:ALL
 source ${pkgs.nix-direnv}/share/nix-direnv/direnvrc
       '';
 
+      # Starship prompt configuration
+      starshipConfig = pkgs.writeTextDir "home/coder/.config/starship.toml" ''
+format = """
+$directory\
+$git_branch\
+$git_status\
+$nodejs\
+$nix_shell\
+$cmd_duration\
+$line_break\
+$character"""
+
+[directory]
+truncation_length = 3
+truncate_to_repo = true
+
+[git_branch]
+format = "[$branch]($style) "
+
+[git_status]
+format = '([$all_status$ahead_behind]($style) )'
+
+[nodejs]
+format = "[$symbol($version)]($style) "
+
+[nix_shell]
+format = "[$symbol$state]($style) "
+
+[cmd_duration]
+min_time = 2_000
+format = "[$duration]($style) "
+
+[character]
+success_symbol = "[>](bold green)"
+error_symbol = "[>](bold red)"
+      '';
+
       # nix-ld: library environment for running unpatched dynamic binaries.
       # This bundles common shared libraries so that pre-compiled binaries
       # (e.g. from npm, pip wheels, GitHub releases, VS Code Remote, rustup)
@@ -122,6 +159,9 @@ fi
 
 # Direnv hook
 eval "$(direnv hook bash)"
+
+# Starship prompt
+eval "$(starship init bash)"
       '';
 
     in
@@ -173,6 +213,7 @@ eval "$(direnv hook bash)"
             ripgrep
             fd
             tmux
+            starship
 
             # Secrets management
             sops
@@ -195,6 +236,7 @@ eval "$(direnv hook bash)"
             nixConf
             sudoersConf
             direnvrc
+            starshipConfig
             bashrc
             nix-ld-libraries
           ];
