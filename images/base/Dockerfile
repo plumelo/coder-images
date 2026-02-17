@@ -48,6 +48,9 @@ curl -fsSLo /usr/local/bin/sops \
     https://github.com/getsops/sops/releases/download/v3.11.0/sops-v3.11.0.linux.amd64
 chmod +x /usr/local/bin/sops
 
+# Install starship prompt
+curl -fsSL https://starship.rs/install.sh | sh -s -- --yes
+
 # Cleanup
 rm -rf /var/lib/apt/lists/*
 EOF
@@ -70,3 +73,7 @@ RUN userdel -r ubuntu && \
     echo "coder ALL=(ALL) NOPASSWD:ALL" >>/etc/sudoers.d/nopasswd
 
 USER coder
+
+# Starship prompt configuration
+COPY --chown=coder:coder starship.toml /home/coder/.config/starship.toml
+RUN echo 'eval "$(starship init bash)"' >> /home/coder/.bashrc
