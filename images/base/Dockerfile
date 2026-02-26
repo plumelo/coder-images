@@ -72,8 +72,9 @@ RUN userdel -r ubuntu && \
     --user-group && \
     echo "coder ALL=(ALL) NOPASSWD:ALL" >>/etc/sudoers.d/nopasswd
 
-USER coder
-
 # Starship prompt configuration
-COPY --chown=coder:coder starship.toml /home/coder/.config/starship.toml
-RUN echo 'eval "$(starship init bash)"' >> /home/coder/.bashrc
+# Place config in /etc/skel so it is copied into the home volume by the
+# workspace init script (cp -rT /etc/skel ~) on every workspace start.
+RUN mkdir -p /etc/skel/.config
+COPY starship.toml /etc/skel/.config/starship.toml
+RUN echo 'eval "$(starship init bash)"' >> /etc/skel/.bashrc
