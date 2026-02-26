@@ -35,6 +35,10 @@ rm -rf /var/lib/apt/lists/*
 # Create /nix owned by coder for single-user Nix install
 mkdir -p /nix
 chown coder:coder /nix
+
+# Enable flakes and nix-command (system-wide, outside home volume)
+mkdir -p /etc/nix
+echo 'experimental-features = nix-command flakes' > /etc/nix/nix.conf
 EOF
 
 USER coder
@@ -42,8 +46,11 @@ USER coder
 # Install Nix in single-user mode (no daemon, no systemd required)
 RUN curl -L https://nixos.org/nix/install | sh -s -- --no-daemon
 
-# Enable flakes and nix-command
-RUN mkdir -p ~/.config/nix && \
-    echo 'experimental-features = nix-command flakes' > ~/.config/nix/nix.conf
-
-ENV PATH="/home/coder/.nix-profile/bin:${PATH}"
+# Symlink nix binaries into /usr/local/bin so they survive the home volume mount.
+# We resolve through ~/.nix-profile (which exists at build time) to the real
+# /nix/store/… paths that persist outside the home directory.
+USER root
+RUN for bin in /home/coder/.nix-profile/bin/nix*; do \
+      ln -s "$(readlink -f "$bin")" /usr/local/bin/; \
+    done
+USER coder
