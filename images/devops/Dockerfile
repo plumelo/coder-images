@@ -7,7 +7,7 @@ RUN <<EOF
 set -e
 
 apt-get update
-apt-get install -y --no-install-recommends gnupg software-properties-common unzip
+apt-get install -y --no-install-recommends gnupg software-properties-common unzip xz-utils
 
 # Add HashiCorp repository
 curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
@@ -31,6 +31,19 @@ apt-get install -y --no-install-recommends \
 
 # Cleanup
 rm -rf /var/lib/apt/lists/*
+
+# Create /nix owned by coder for single-user Nix install
+mkdir -p /nix
+chown coder:coder /nix
 EOF
 
 USER coder
+
+# Install Nix in single-user mode (no daemon, no systemd required)
+RUN curl -L https://nixos.org/nix/install | sh -s -- --no-daemon
+
+# Enable flakes and nix-command
+RUN mkdir -p ~/.config/nix && \
+    echo 'experimental-features = nix-command flakes' > ~/.config/nix/nix.conf
+
+ENV PATH="/home/coder/.nix-profile/bin:${PATH}"
