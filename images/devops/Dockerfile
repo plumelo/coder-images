@@ -51,6 +51,6 @@ RUN curl -L https://nixos.org/nix/install | sh -s -- --no-daemon
 # /nix/store/… paths that persist outside the home directory.
 USER root
 RUN for bin in /home/coder/.nix-profile/bin/nix*; do \
-      ln -s "$(readlink -f "$bin")" /usr/local/bin/; \
+      ln -s "$(readlink -f "$bin")" "/usr/local/bin/$(basename "$bin")"; \
     done
 USER coder
