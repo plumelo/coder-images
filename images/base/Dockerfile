@@ -78,3 +78,5 @@ RUN userdel -r ubuntu && \
 RUN mkdir -p /etc/skel/.config
 COPY starship.toml /etc/skel/.config/starship.toml
 RUN echo 'eval "$(starship init bash)"' >> /etc/skel/.bashrc
+
+USER coder
