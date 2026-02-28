@@ -40,6 +40,8 @@ apt-get install -y --no-install-recommends \
     gh \
     neovim \
     nodejs \
+    python3 \
+    python3-venv \
     ripgrep \
     tmux
 
@@ -50,6 +52,11 @@ chmod +x /usr/local/bin/sops
 
 # Install starship prompt
 curl -fsSL https://starship.rs/install.sh | sh -s -- --yes
+
+# Install uv (includes uvx)
+curl -fsSL https://astral.sh/uv/install.sh | sh -s -- --no-modify-path
+mv /root/.local/bin/uv /usr/local/bin/uv
+mv /root/.local/bin/uvx /usr/local/bin/uvx
 
 # Cleanup
 rm -rf /var/lib/apt/lists/*
