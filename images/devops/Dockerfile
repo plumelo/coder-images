@@ -29,6 +29,14 @@ apt-get install -y --no-install-recommends \
     packer \
     azure-cli
 
+# Install azcopy (latest version)
+curl -fsSL https://aka.ms/downloadazcopy-v10-linux -o /tmp/azcopy.tar.gz
+mkdir -p /tmp/azcopy
+tar -xzf /tmp/azcopy.tar.gz -C /tmp/azcopy --strip-components=1
+mv /tmp/azcopy/azcopy /usr/local/bin/azcopy
+chmod +x /usr/local/bin/azcopy
+rm -rf /tmp/azcopy /tmp/azcopy.tar.gz
+
 # Cleanup
 rm -rf /var/lib/apt/lists/*
 
