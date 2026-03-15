@@ -50,6 +50,11 @@ curl -fsSLo /usr/local/bin/sops \
     https://github.com/getsops/sops/releases/download/v3.11.0/sops-v3.11.0.linux.amd64
 chmod +x /usr/local/bin/sops
 
+# Install tea (Gitea CLI)
+curl -fsSLo /usr/local/bin/tea \
+    https://gitea.com/gitea/tea/releases/download/v0.12.0/tea-0.12.0-linux-amd64
+chmod +x /usr/local/bin/tea
+
 # Install starship prompt
 curl -fsSL https://starship.rs/install.sh | sh -s -- --yes
 
