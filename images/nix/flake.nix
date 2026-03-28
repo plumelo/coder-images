@@ -207,7 +207,6 @@ eval "$(starship init bash)"
             gcc
 
             # Dev tools
-            neovim
             nodejs
             gh
             ripgrep

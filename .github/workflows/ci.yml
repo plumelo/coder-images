@@ -15,7 +15,13 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Build base image
-        run: docker build ./images/base
+        run: docker build -t test-base ./images/base
+
+      - name: Verify base image tools
+        run: |
+          docker run --rm test-base ssh-to-age --help
+          docker run --rm test-base sops --version
+          docker run --rm test-base age --version
 
   check-nix:
     if: github.event_name == 'pull_request'

@@ -38,7 +38,6 @@ apt-get install -y --no-install-recommends \
     build-essential \
     fd-find \
     gh \
-    neovim \
     nodejs \
     python3 \
     python3-venv \
@@ -86,6 +85,11 @@ apt-get install -y --no-install-recommends \
 curl -fsSLo /usr/local/bin/sops \
     https://github.com/getsops/sops/releases/download/v3.11.0/sops-v3.11.0.linux.amd64
 chmod +x /usr/local/bin/sops
+
+# Install ssh-to-age (for converting SSH keys to age keys)
+curl -fsSLo /usr/local/bin/ssh-to-age \
+    https://github.com/Mic92/ssh-to-age/releases/latest/download/ssh-to-age.linux-amd64
+chmod +x /usr/local/bin/ssh-to-age
 
 # Install tea (Gitea CLI)
 curl -fsSLo /usr/local/bin/tea \
