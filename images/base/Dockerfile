@@ -15,6 +15,7 @@ apt-get install -y --no-install-recommends \
     bash-completion \
     ca-certificates \
     curl \
+    file \
     git \
     git-lfs \
     iproute2 \
