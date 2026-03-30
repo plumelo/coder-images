@@ -45,7 +45,7 @@ apt-get install -y --no-install-recommends \
     ripgrep \
     tmux
 
-# Playwright Chromium system dependencies
+# Playwright system dependencies (Chromium + Firefox)
 # (browser binaries are installed per-project via `npx playwright install`)
 apt-get install -y --no-install-recommends \
     fonts-freefont-ttf \
@@ -67,6 +67,7 @@ apt-get install -y --no-install-recommends \
     libfreetype6 \
     libgbm1 \
     libglib2.0-0t64 \
+    libgtk-3-0t64 \
     libnspr4 \
     libnss3 \
     libpango-1.0-0 \
