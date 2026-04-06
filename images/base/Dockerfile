@@ -45,6 +45,9 @@ apt-get install -y --no-install-recommends \
     ripgrep \
     tmux
 
+# Upgrade npm to latest version
+npm install -g npm@latest
+
 # Playwright system dependencies (Chromium + Firefox)
 # (browser binaries are installed per-project via `npx playwright install`)
 apt-get install -y --no-install-recommends \
