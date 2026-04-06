@@ -7,7 +7,6 @@ Base images for Coder workspaces.
 | Image | Tag | Contents |
 |-------|-----|----------|
 | Base | `:base` | Ubuntu Noble + bash, bash-completion, git, curl, Node.js 24, gh CLI, tea CLI, ripgrep, fd-find, tmux, build-essential, age, sops, ssh-to-age |
-| Nix | `:nix` | Nix-built image + bash, bash-completion, git, curl, Node.js, gh CLI, ripgrep, fd, tmux, gcc, make, sops, age, nix, direnv, nix-direnv, nix-ld |
 | DevOps | `:devops` | Base + Terraform, Packer, tflint, azcopy |
 
 ## Usage
@@ -15,9 +14,6 @@ Base images for Coder workspaces.
 ```dockerfile
 # Base image
 FROM ghcr.io/plumelo/coder-images:base
-
-# Nix image (includes nix, direnv, nix-ld)
-FROM ghcr.io/plumelo/coder-images:nix
 
 # DevOps image (includes Terraform, Packer, tflint)
 FROM ghcr.io/plumelo/coder-images:devops
@@ -52,10 +48,6 @@ docker build -t test-base ./images/base
 
 # Build variant using local base
 docker build --build-arg BASE_IMAGE=test-base -t test-devops ./images/devops
-
-# Build nix image (requires nix with flakes enabled)
-nix build ./images/nix#dockerImage
-docker load < result
 
 # Verify tools
 docker run --rm test-base sops --version
