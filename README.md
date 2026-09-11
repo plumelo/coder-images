@@ -6,7 +6,7 @@ Base images for Coder workspaces.
 
 | Image | Tag | Contents |
 |-------|-----|----------|
-| Base | `:base` | Ubuntu Noble + bash, bash-completion, git, curl, Node.js 24, gh CLI, tea CLI, ripgrep, fd-find, tmux, build-essential, age, sops, ssh-to-age |
+| Base | `:base` | Ubuntu Noble + bash, bash-completion, git, curl, Node.js 24, gh CLI, tea CLI, ripgrep, fd-find, tmux, build-essential, age, sops, ssh-to-age, lsof |
 | DevOps | `:devops` | Base + Terraform, Packer, tflint, azcopy |
 
 ## Usage

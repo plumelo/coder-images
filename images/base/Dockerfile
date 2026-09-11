@@ -20,6 +20,7 @@ apt-get install -y --no-install-recommends \
     git-lfs \
     iproute2 \
     jq \
+    lsof \
     locales \
     openssh-client \
     sudo
